@@ -1,0 +1,40 @@
+{
+  "compileOnSave": true,
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "test",
+    "**/*.spec.ts",
+    "dist"
+  ],
+  "compilerOptions": {
+    "importHelpers": true,
+    "outDir": "./dist/",
+    "sourceMap": true,
+    "lib": [
+      "es6",
+      "dom"
+    ],
+    "moduleResolution": "node",
+    //"inlineSources": true,
+    "declaration": false,
+    "module": "commonjs",
+    "target": "es2017",
+    "removeComments": true,
+    "types": [
+      "reflect-metadata",
+      "jest",
+      "node"
+    ],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    //"allowJs": true,
+    "resolveJsonModule": true,
+    "typeRoots": [
+      "node_modules/@types",
+      "src/@types"
+    ]
+  }
+}
