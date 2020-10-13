@@ -49,6 +49,22 @@ export class LullabyController {
     res.end("Ok");
   }
 
+  @httpPost("/code")
+  public async getCode(
+      @request() req: express.Request,
+      @response() res: express.Response
+  ): Promise<void> {
+    //console.log(req)
+    const body = req.body as FieldPayload;
+    if (body.playerId === undefined || body.gameId === undefined) {
+      console.warn(`Request ignored :(game ${body.gameId}) ${body.playerId} -> ${body.field}`);
+      return;
+    }
+    const isRecorded = this.getPositionBroker(body.gameId).isRecordedPlayer(body.playerId);
+    res.statusCode = isRecorded ? CUSTOM_HTTP_CODES.OK_RECORDING : CUSTOM_HTTP_CODES.OK_STANDBY;
+    res.end("Ok");
+  }
+
   @httpPost("takeOver")
   public async takeOver(
     @request() req: express.Request,

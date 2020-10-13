@@ -17,6 +17,11 @@ As there can be multiple GMs in a Roll20 Game, it is possible to switch between 
             
     + POST /takeOver
         + Description: Ask to be recorded. This is used to maually switch between GMs. 
+        
+    + POST /code
+        + Description: Only returns the HTTP status code corresponfing to the player state
+        + Returns : OK_RECORDING if the player is being recorder, OK_STANDY if not.
+
 
 ### Custom HTTP Codes
 
