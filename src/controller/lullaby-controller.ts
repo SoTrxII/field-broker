@@ -35,8 +35,8 @@ export class LullabyController {
 
   @httpPost("/")
   public async processField(
-    @request() req: express.Request,
-    @response() res: express.Response
+      @request() req: express.Request,
+      @response() res: express.Response
   ): Promise<void> {
     //console.log(req)
     const body = req.body as FieldPayload;
@@ -49,7 +49,7 @@ export class LullabyController {
     res.end("Ok");
   }
 
-  @httpPost("/takeOver")
+  @httpPost("takeOver")
   public async takeOver(
     @request() req: express.Request,
     @response() res: express.Response
@@ -68,7 +68,7 @@ export class LullabyController {
     res.end();
   }
 
-  @httpPost("/disconnect")
+  @httpPost("disconnect")
   public async disconnect(
       @request() req: express.Request,
       @response() res: express.Response
