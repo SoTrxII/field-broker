@@ -1,4 +1,5 @@
 export const TYPES = {
   RedisService: Symbol.for("RedisService"),
-  FieldManager: Symbol.for("FieldManager"),
+  PositionBroker: Symbol.for("PositionBroker"),
+  BrokersManager: Symbol.for("BrokersManager"),
 };

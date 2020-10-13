@@ -1,6 +1,6 @@
 import {
   controller,
-  httpGet,
+  httpGet, httpPost,
   request,
   response,
 } from "inversify-express-utils";
@@ -9,11 +9,14 @@ import * as express from "express";
 import { TYPES } from "../types";
 import { RedisAPI } from "../@types/redis-service";
 import { Bbox } from "../@types/api";
-import { FieldManagerAPI } from "../@types/field-manager-api";
+import { PositionBrokerAPI } from "../@types/position-broker-api";
+import {BrokersManager} from "../services/brokers-manager";
+import {BrokersManagerAPI} from "../@types/brokers-manager-API";
 
 export interface FieldPayload {
-  player: string;
+  playerId: string;
   field: Bbox;
+  gameId: number;
 }
 export enum CUSTOM_HTTP_CODES {
   OK_STANDBY = 215,
@@ -27,52 +30,77 @@ export enum PubChannels {
 export class LullabyController {
   constructor(
     @inject(TYPES.RedisService) private redisService: RedisAPI,
-    @inject(TYPES.FieldManager) private fieldManager: FieldManagerAPI
+    @inject(TYPES.BrokersManager) private brokersManager: BrokersManagerAPI
   ) {}
 
-  @httpGet("/")
+  @httpPost("/")
   public async processField(
     @request() req: express.Request,
     @response() res: express.Response
   ): Promise<void> {
+    //console.log(req)
     const body = req.body as FieldPayload;
-    if (!body.player || !body.field) {
-      console.warn(`Request ignored : ${body.player} -> ${body.field}`);
+    if (body.playerId === undefined || body.field === undefined || body.gameId === undefined) {
+      console.warn(`Request ignored :(game ${body.gameId}) ${body.playerId} -> ${body.field}`);
       return;
     }
-    this.fieldManager.updateFieldOf(body.player, body.field);
-    res.statusCode = this.publishField(body.player);
+    this.getPositionBroker(body.gameId).updateFieldOf(body.playerId, body.field);
+    res.statusCode = this.publishField(body.playerId, body.gameId);
     res.end("Ok");
   }
 
-  @httpGet("/takeOver")
+  @httpPost("/takeOver")
   public async takeOver(
     @request() req: express.Request,
     @response() res: express.Response
   ): Promise<void> {
     const body = req.body as FieldPayload;
-    if (!body.player || !body.field) {
-      console.warn(`Request ignored : ${body.player} -> ${body.field}`);
+    if (body.playerId === undefined || body.gameId === undefined) {
+      console.warn(`Request ignored :(game ${body.gameId}) ${body.playerId} -> ${body.field}`);
       return;
     }
     try {
-      this.fieldManager.takeOverRecording(body.player);
-      res.statusCode = this.publishField(body.player);
+      this.getPositionBroker(body.gameId).takeOverRecording(body.playerId);
+      res.statusCode = this.publishField(body.playerId, body.gameId);
     } catch (e) {
       res.statusCode = 422;
     }
     res.end();
   }
 
-  private publishField(candidate: string): CUSTOM_HTTP_CODES{
-    if (!this.fieldManager.isRecordedPlayer(candidate)) {
+  @httpPost("/disconnect")
+  public async disconnect(
+      @request() req: express.Request,
+      @response() res: express.Response
+  ): Promise<void> {
+    try {
+      const body = req.body as FieldPayload;
+      if (body.gameId === undefined) {
+        console.warn(`Request ignored :(game ${body.gameId}) ${body.playerId} -> ${body.field}`);
+        return;
+      }
+      const hasChanged = this.getPositionBroker(body.gameId).shiftRecordedPlayer()
+      console.log(`Trying to change recorded player: ` + hasChanged);
+    } catch (e) {
+      res.statusCode = 422;
+    }
+    res.end();
+  }
+
+  private publishField(candidate: string, gameId: number): CUSTOM_HTTP_CODES{
+    const positionBroker = this.getPositionBroker(gameId);
+    if (!positionBroker.isRecordedPlayer(candidate)) {
       return CUSTOM_HTTP_CODES.OK_STANDBY;
     }
     this.redisService.publish(PubChannels.MovePlayingField, {
       data: {
-        bbox: this.fieldManager.recordedField,
+        bbox: positionBroker.recordedField,
       },
     });
     return CUSTOM_HTTP_CODES.OK_RECORDING;
+  }
+
+  private getPositionBroker(gameId: number): PositionBrokerAPI{
+    return this.brokersManager.getBrokerForGame(gameId);
   }
 }

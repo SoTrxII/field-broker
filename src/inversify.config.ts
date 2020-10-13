@@ -2,9 +2,11 @@ import { Container } from "inversify";
 import { TYPES } from "./types";
 import { RedisService } from "./services/redis-service";
 import { RedisAPI } from "./@types/redis-service";
-import { FieldManagerAPI } from "./@types/field-manager-api";
-import { FieldManager } from "./services/field-manager";
+import { PositionBrokerAPI } from "./@types/position-broker-api";
+import { PositionBroker } from "./services/position-broker";
 import { env } from "process";
+import { BrokersManager } from "./services/brokers-manager";
+import { BrokersManagerAPI } from "./@types/brokers-manager-API";
 
 export const container = new Container();
 
@@ -18,4 +20,11 @@ container.bind<RedisAPI>(TYPES.RedisService).toConstantValue(
   })
 );
 
-container.bind<FieldManagerAPI>(TYPES.FieldManager).to(FieldManager);
+container
+  .bind<PositionBrokerAPI>(TYPES.PositionBroker)
+  .toConstructor(PositionBroker);
+
+container
+  .bind<BrokersManagerAPI>(TYPES.BrokersManager)
+  .to(BrokersManager)
+  .inSingletonScope();
