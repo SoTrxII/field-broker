@@ -49,7 +49,7 @@ export class LullabyController {
     res.end("Ok");
   }
 
-  @httpPost("/code")
+  @httpPost("code")
   public async getCode(
       @request() req: express.Request,
       @response() res: express.Response
