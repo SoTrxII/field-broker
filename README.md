@@ -27,3 +27,5 @@ HTTP codes are used :
 + 216 -> OK_RECORDING: Used when the server registered the new field, and inform the client that this field is the one
     being recorded. 
 
+
+
