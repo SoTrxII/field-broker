@@ -27,7 +27,7 @@ export enum PubChannels {
 }
 
 @controller("/")
-export class LullabyController {
+export class FieldController {
   constructor(
     @inject(TYPES.RedisService) private redisService: RedisAPI,
     @inject(TYPES.BrokersManager) private brokersManager: BrokersManagerAPI

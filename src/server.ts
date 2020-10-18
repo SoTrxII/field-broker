@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { container } from "./inversify.config";
 import { InversifyExpressServer } from "inversify-express-utils";
-import "./controller/lullaby-controller";
+import "./controller/field-controller";
 import { json } from "body-parser";
 export const PORT = 8089;
 // start the server

@@ -7,7 +7,7 @@ import { TYPES } from "./types";
 import {
   CUSTOM_HTTP_CODES,
   PubChannels,
-} from "./controller/lullaby-controller";
+} from "./controller/field-controller";
 import fetch, { ResponseType } from "node-fetch";
 // Full fledged fake client, testing "in real conditions"
 class Client {
